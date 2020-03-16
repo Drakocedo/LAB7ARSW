@@ -1,5 +1,7 @@
 var app = (function () {
 
+    var topic;
+
     class Point{
         constructor(x,y){
             this.x=x;
@@ -36,7 +38,7 @@ var app = (function () {
         //subscribe to /topic/TOPICXX when connections succeed
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
-            stompClient.subscribe('/topic/newpoint', function (eventBody) {
+            stompClient.subscribe('/topic/newpoint.'+topic, function (eventBody) {
                 var theObject=JSON.parse(eventBody.body);
                 //alert("Evento Recibido : "+ eventBody);
                 addPointToCanvas(new Point(theObject.x , theObject.y));
@@ -49,7 +51,9 @@ var app = (function () {
 
         init: function () {
             var can = document.getElementById("canvas");
-            
+            topic = $("#idDibujo").val();
+            console.log("idDibujo: "+topic);
+
             //websocket connection
             connectAndSubscribe();
         },
@@ -59,7 +63,7 @@ var app = (function () {
             console.info("publishing point at "+pt);
             addPointToCanvas(pt);
             //publicar el evento
-            stompClient.send("/topic/newpoint", {}, JSON.stringify(pt));
+            stompClient.send("/topic/newpoint."+topic, {}, JSON.stringify(pt));
         },
 
         disconnect: function () {
